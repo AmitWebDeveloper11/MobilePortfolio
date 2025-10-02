@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Gallery - Alex Morgan</title>
+   <link rel="stylesheet" href="css/main.css" />
+       <link rel="icon" type="image/x-icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdlpPNwMG2kh5F7OXmcpHyRUqcZSdBQj41Lg&s">
+
+    <style>
+        /* Custom animations for gallery transitions */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(0, 122, 255, 0);
+            }
+        }
+        
+        .animate-slide-right {
+            animation: slideInRight 0.6s ease-out forwards;
+        }
+        
+        .animate-slide-left {
+            animation: slideInLeft 0.6s ease-out forwards;
+        }
+        
+        .animate-fade-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        .animate-pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+        
+        /* Gallery specific styles */
+        .gallery-container {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+        }
+        
+        .project-slide {
+            scroll-snap-align: start;
+            min-width: 100%;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .project-slide.active {
+            transform: scale(1);
+        }
+        
+        .project-slide:not(.active) {
+            transform: scale(0.95);
+            opacity: 0.7;
+        }
+        
+        /* Touch feedback */
+        .touch-scale {
+            transition: transform 0.15s ease-out;
+        }
+        
+        .touch-scale:active {
+            transform: scale(0.98);
+        }
+        
+        /* Progress indicator */
+        .progress-dot {
+            transition: all 0.3s ease;
+        }
+        
+        .progress-dot.active {
+            background-color: #007AFF;
+            transform: scale(1.2);
+        }
+        
+        /* Parallax effect */
+        .parallax-bg {
+            transition: transform 0.3s ease-out;
+        }
+        
+        /* Filter overlay */
+        .filter-overlay {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* Project card enhancements */
+        .project-card-enhanced {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* Technology tags */
+        .tech-tag {
+            background: rgba(0, 122, 255, 0.1);
+            color: #007AFF;
+            transition: all 0.2s ease;
+        }
+        
+        .tech-tag:hover {
+            background: rgba(0, 122, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        /* Swipe indicator */
+        .swipe-indicator {
+            animation: swipeHint 3s ease-in-out infinite;
+        }
+        
+        @keyframes swipeHint {
+            0%, 100% { transform: translateX(0); opacity: 0.5; }
+            50% { transform: translateX(10px); opacity: 1; }
+        }
+    </style>
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fmobilepor2696back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="bg-background min-h-screen overflow-hidden">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-md border-b border-gray-200 safe-top">
+        <div class="flex items-center justify-between px-6 py-4">
+            <!-- Back Button -->
+            <button onclick="goBack()" class="touch-target tap-highlight-transparent touch-scale flex items-center space-x-2">
+                <svg class="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                <span class="text-text-primary font-medium">Back</span>
+            </button>
+            
+            <!-- Project Counter -->
+            <div class="flex items-center space-x-2">
+                <span class="text-text-secondary text-sm" id="projectCounter">1 of 6</span>
+            </div>
+            
+            <!-- Filter Button -->
+            <button onclick="toggleFilter()" class="touch-target tap-highlight-transparent touch-scale" id="filterBtn">
+                <svg class="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Filter Overlay -->
+    <div class="fixed inset-0 z-40 bg-black/50 filter-overlay hidden" id="filterOverlay" onclick="toggleFilter()">
+        <div class="absolute top-20 left-6 right-6 bg-surface rounded-mobile p-6 elevation-3" onclick="event.stopPropagation()">
+            <h3 class="text-fluid-lg font-semibold text-text-primary mb-4">Filter Projects</h3>
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button class="filter-tag px-3 py-2 rounded-lg bg-accent text-white text-sm font-medium" data-filter="all">All</button>
+                <button class="filter-tag px-3 py-2 rounded-lg bg-gray-100 text-text-secondary text-sm font-medium" data-filter="mobile">Mobile</button>
+                <button class="filter-tag px-3 py-2 rounded-lg bg-gray-100 text-text-secondary text-sm font-medium" data-filter="web">Web</button>
+                <button class="filter-tag px-3 py-2 rounded-lg bg-gray-100 text-text-secondary text-sm font-medium" data-filter="ui-ux">UI/UX</button>
+                <button class="filter-tag px-3 py-2 rounded-lg bg-gray-100 text-text-secondary text-sm font-medium" data-filter="fullstack">Full Stack</button>
+            </div>
+            <button onclick="toggleFilter()" class="w-full btn-primary">Apply Filter</button>
+        </div>
+    </div>
+
+    <!-- Main Gallery Container -->
+    <main class="pt-20 h-screen">
+        <div class="gallery-container h-full overflow-x-auto flex" id="galleryContainer">
+            <!-- Project Slide 1 -->
+            <div class="project-slide active flex-shrink-0 w-full h-full overflow-y-auto" data-category="mobile">
+                <div class="min-h-full flex flex-col">
+                    <!-- Hero Image -->
+                    <div class="h-64 relative overflow-hidden">
+                        <div class="parallax-bg absolute inset-0">
+                            <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Mobile Banking App" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://images.pixabay.com/photo/2016/11/30/20/58/programming-1873854_1280.png'; this.onerror=null;" />
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div class="absolute bottom-4 left-6 right-6">
+                            <h2 class="text-white text-fluid-2xl font-bold mb-2">Mobile Banking App</h2>
+                            <p class="text-white/90 text-fluid-base">Secure & Intuitive Financial Management</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Content -->
+                    <div class="flex-1 p-6 space-y-6">
+                        <!-- Description -->
+                        <div class="animate-fade-up opacity-0" style="animation-delay: 0.1s;">
+                            <p class="text-text-secondary text-fluid-base leading-relaxed">
+                                A comprehensive mobile banking solution featuring biometric authentication, real-time transaction monitoring, and seamless money transfers. Built with React Native and Node.js backend.
+                            </p>
+                        </div>
+                        
+                        <!-- Technology Tags -->
+                        <div class="animate-fade-up opacity-0" style="animation-delay: 0.2s;">
+                            <h4 class="text-text-primary font-semibold mb-3">Technologies Used</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">React Native</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Node.js</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">MongoDB</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Firebase</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Features -->
+                        <div class="animate-fade-up opacity-0" style="animation-delay: 0.3s;">
+                            <h4 class="text-text-primary font-semibold mb-3">Key Features</h4>
+                            <ul class="space-y-2 text-text-secondary">
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Biometric Authentication</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Real-time Notifications</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Instant Money Transfers</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Budget Tracking</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Action Button -->
+                        <div class="animate-fade-up opacity-0" style="animation-delay: 0.4s;">
+                            <a href="project_detail_screen.html" class="btn-primary w-full text-center touch-scale inline-flex items-center justify-center space-x-2">
+                                <span>View Details</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Slide 2 -->
+            <div class="project-slide flex-shrink-0 w-full h-full overflow-y-auto" data-category="web">
+                <div class="min-h-full flex flex-col">
+                    <!-- Hero Image -->
+                    <div class="h-64 relative overflow-hidden">
+                        <div class="parallax-bg absolute inset-0">
+                            <img src="https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="E-commerce Platform" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;" />
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div class="absolute bottom-4 left-6 right-6">
+                            <h2 class="text-white text-fluid-2xl font-bold mb-2">E-commerce Platform</h2>
+                            <p class="text-white/90 text-fluid-base">Modern Shopping Experience</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Content -->
+                    <div class="flex-1 p-6 space-y-6">
+                        <!-- Description -->
+                        <div>
+                            <p class="text-text-secondary text-fluid-base leading-relaxed">
+                                A full-featured e-commerce platform with advanced product filtering, secure payment integration, and real-time inventory management. Built for scalability and performance.
+                            </p>
+                        </div>
+                        
+                        <!-- Technology Tags -->
+                        <div>
+                            <h4 class="text-text-primary font-semibold mb-3">Technologies Used</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Next.js</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">TypeScript</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Stripe</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">PostgreSQL</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Features -->
+                        <div>
+                            <h4 class="text-text-primary font-semibold mb-3">Key Features</h4>
+                            <ul class="space-y-2 text-text-secondary">
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Advanced Product Search</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Secure Payment Gateway</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Real-time Inventory</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Order Tracking</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Action Button -->
+                        <div>
+                            <a href="project_detail_screen.html" class="btn-primary w-full text-center touch-scale inline-flex items-center justify-center space-x-2">
+                                <span>View Details</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Slide 3 -->
+            <div class="project-slide flex-shrink-0 w-full h-full overflow-y-auto" data-category="mobile">
+                <div class="min-h-full flex flex-col">
+                    <!-- Hero Image -->
+                    <div class="h-64 relative overflow-hidden">
+                        <div class="parallax-bg absolute inset-0">
+                            <img src="https://images.pixabay.com/photo/2016/11/19/14/00/code-1839406_1280.jpg" alt="Task Management App" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'; this.onerror=null;" />
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div class="absolute bottom-4 left-6 right-6">
+                            <h2 class="text-white text-fluid-2xl font-bold mb-2">Task Management App</h2>
+                            <p class="text-white/90 text-fluid-base">Productivity & Team Collaboration</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Content -->
+                    <div class="flex-1 p-6 space-y-6">
+                        <!-- Description -->
+                        <div>
+                            <p class="text-text-secondary text-fluid-base leading-relaxed">
+                                A comprehensive task management solution with drag-and-drop functionality, team collaboration features, and advanced project tracking capabilities.
+                            </p>
+                        </div>
+                        
+                        <!-- Technology Tags -->
+                        <div>
+                            <h4 class="text-text-primary font-semibold mb-3">Technologies Used</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Flutter</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Dart</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Firebase</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">GraphQL</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Features -->
+                        <div>
+                            <h4 class="text-text-primary font-semibold mb-3">Key Features</h4>
+                            <ul class="space-y-2 text-text-secondary">
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Drag & Drop Interface</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Team Collaboration</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Time Tracking</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Progress Analytics</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Action Button -->
+                        <div>
+                            <a href="project_detail_screen.html" class="btn-primary w-full text-center touch-scale inline-flex items-center justify-center space-x-2">
+                                <span>View Details</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Slide 4 -->
+            <div class="project-slide flex-shrink-0 w-full h-full overflow-y-auto" data-category="ui-ux">
+                <div class="min-h-full flex flex-col">
+                    <!-- Hero Image -->
+                    <div class="h-64 relative overflow-hidden">
+                        <div class="parallax-bg absolute inset-0">
+                            <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Healthcare Dashboard" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://images.pexels.com/photos/4386431/pexels-photo-4386431.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'; this.onerror=null;" />
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div class="absolute bottom-4 left-6 right-6">
+                            <h2 class="text-white text-fluid-2xl font-bold mb-2">Healthcare Dashboard</h2>
+                            <p class="text-white/90 text-fluid-base">Medical Data Visualization</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Content -->
+                    <div class="flex-1 p-6 space-y-6">
+                        <!-- Description -->
+                        <div>
+                            <p class="text-text-secondary text-fluid-base leading-relaxed">
+                                An intuitive healthcare dashboard for medical professionals featuring patient data visualization, appointment scheduling, and real-time health monitoring.
+                            </p>
+                        </div>
+                        
+                        <!-- Technology Tags -->
+                        <div>
+                            <h4 class="text-text-primary font-semibold mb-3">Technologies Used</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Vue.js</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">D3.js</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Express.js</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">MySQL</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Features -->
+                        <div>
+                            <h4 class="text-text-primary font-semibold mb-3">Key Features</h4>
+                            <ul class="space-y-2 text-text-secondary">
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Patient Data Analytics</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Appointment Scheduling</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Real-time Monitoring</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>HIPAA Compliance</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Action Button -->
+                        <div>
+                            <a href="project_detail_screen.html" class="btn-primary w-full text-center touch-scale inline-flex items-center justify-center space-x-2">
+                                <span>View Details</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Slide 5 -->
+            <div class="project-slide flex-shrink-0 w-full h-full overflow-y-auto" data-category="fullstack">
+                <div class="min-h-full flex flex-col">
+                    <!-- Hero Image -->
+                    <div class="h-64 relative overflow-hidden">
+                        <div class="parallax-bg absolute inset-0">
+                            <img src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Social Media Platform" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://images.pixabay.com/photo/2017/06/10/07/18/list-2389219_1280.png'; this.onerror=null;" />
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div class="absolute bottom-4 left-6 right-6">
+                            <h2 class="text-white text-fluid-2xl font-bold mb-2">Social Media Platform</h2>
+                            <p class="text-white/90 text-fluid-base">Community & Content Sharing</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Content -->
+                    <div class="flex-1 p-6 space-y-6">
+                        <!-- Description -->
+                        <div>
+                            <p class="text-text-secondary text-fluid-base leading-relaxed">
+                                A modern social media platform with real-time messaging, content sharing, and community building features. Built for scalability and user engagement.
+                            </p>
+                        </div>
+                        
+                        <!-- Technology Tags -->
+                        <div>
+                            <h4 class="text-text-primary font-semibold mb-3">Technologies Used</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">React</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Socket.io</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Redis</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">AWS</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Features -->
+                        <div>
+                            <h4 class="text-text-primary font-semibold mb-3">Key Features</h4>
+                            <ul class="space-y-2 text-text-secondary">
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Real-time Messaging</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Content Sharing</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Community Groups</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Live Streaming</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Action Button -->
+                        <div>
+                            <a href="project_detail_screen.html" class="btn-primary w-full text-center touch-scale inline-flex items-center justify-center space-x-2">
+                                <span>View Details</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Slide 6 -->
+            <div class="project-slide flex-shrink-0 w-full h-full overflow-y-auto" data-category="web">
+                <div class="min-h-full flex flex-col">
+                    <!-- Hero Image -->
+                    <div class="h-64 relative overflow-hidden">
+                        <div class="parallax-bg absolute inset-0">
+                            <img src="https://images.pixabay.com/photo/2016/11/29/06/15/plans-1867745_1280.jpg" alt="Learning Management System" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;" />
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div class="absolute bottom-4 left-6 right-6">
+                            <h2 class="text-white text-fluid-2xl font-bold mb-2">Learning Management System</h2>
+                            <p class="text-white/90 text-fluid-base">Education & Course Management</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Content -->
+                    <div class="flex-1 p-6 space-y-6">
+                        <!-- Description -->
+                        <div>
+                            <p class="text-text-secondary text-fluid-base leading-relaxed">
+                                A comprehensive learning management system with course creation, student progress tracking, and interactive learning modules for educational institutions.
+                            </p>
+                        </div>
+                        
+                        <!-- Technology Tags -->
+                        <div>
+                            <h4 class="text-text-primary font-semibold mb-3">Technologies Used</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Django</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Python</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">PostgreSQL</span>
+                                <span class="tech-tag px-3 py-1 rounded-full text-sm font-medium">Docker</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Features -->
+                        <div>
+                            <h4 class="text-text-primary font-semibold mb-3">Key Features</h4>
+                            <ul class="space-y-2 text-text-secondary">
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Course Creation Tools</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Progress Tracking</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Interactive Quizzes</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Grade Management</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Action Button -->
+                        <div>
+                            <a href="project_detail_screen.html" class="btn-primary w-full text-center touch-scale inline-flex items-center justify-center space-x-2">
+                                <span>View Details</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Progress Indicators -->
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 safe-bottom">
+        <div class="flex space-x-2 bg-surface/90 backdrop-blur-md rounded-full px-4 py-2 elevation-2">
+            <button class="progress-dot w-2 h-2 rounded-full bg-gray-300 active" data-slide="0"></button>
+            <button class="progress-dot w-2 h-2 rounded-full bg-gray-300" data-slide="1"></button>
+            <button class="progress-dot w-2 h-2 rounded-full bg-gray-300" data-slide="2"></button>
+            <button class="progress-dot w-2 h-2 rounded-full bg-gray-300" data-slide="3"></button>
+            <button class="progress-dot w-2 h-2 rounded-full bg-gray-300" data-slide="4"></button>
+            <button class="progress-dot w-2 h-2 rounded-full bg-gray-300" data-slide="5"></button>
+        </div>
+    </div>
+
+    <!-- Swipe Hint -->
+    <div class="fixed bottom-20 right-6 z-30 swipe-indicator" id="swipeHint">
+        <div class="bg-accent text-white px-3 py-2 rounded-full text-sm font-medium flex items-center space-x-2">
+            <span>Swipe</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </div>
+    </div>
+
+    <script>
+        // Gallery state management
+        let currentSlide = 0;
+        const totalSlides = 6;
+        const galleryContainer = document.getElementById('galleryContainer');
+        const projectCounter = document.getElementById('projectCounter');
+        const progressDots = document.querySelectorAll('.progress-dot');
+        const swipeHint = document.getElementById('swipeHint');
+        
+        // Touch gesture variables
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        let isDragging = false;
+        let startTime = 0;
+        
+        // Initialize gallery
+        function initGallery() {
+            updateSlidePosition();
+            updateProgressIndicators();
+            updateProjectCounter();
+            
+            // Hide swipe hint after 3 seconds
+            setTimeout(() => {
+                if (swipeHint) {
+                    swipeHint.style.opacity = '0';
+                    setTimeout(() => {
+                        swipeHint.style.display = 'none';
+                    }, 300);
+                }
+            }, 3000);
+        }
+        
+        // Update slide position
+        function updateSlidePosition() {
+            const slideWidth = galleryContainer.clientWidth;
+            galleryContainer.scrollLeft = currentSlide * slideWidth;
+            
+            // Update active slide
+            const slides = document.querySelectorAll('.project-slide');
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+        }
+        
+        // Update progress indicators
+        function updateProgressIndicators() {
+            progressDots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+        
+        // Update project counter
+        function updateProjectCounter() {
+            projectCounter.textContent = `${currentSlide + 1} of ${totalSlides}`;
+        }
+        
+        // Navigate to specific slide
+        function goToSlide(slideIndex) {
+            if (slideIndex >= 0 && slideIndex < totalSlides) {
+                currentSlide = slideIndex;
+                updateSlidePosition();
+                updateProgressIndicators();
+                updateProjectCounter();
+            }
+        }
+        
+        // Navigate to next slide
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                goToSlide(currentSlide + 1);
+            }
+        }
+        
+        // Navigate to previous slide
+        function prevSlide() {
+            if (currentSlide > 0) {
+                goToSlide(currentSlide - 1);
+            }
+        }
+        
+        // Touch event handlers
+        function handleTouchStart(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            startTime = Date.now();
+            isDragging = true;
+        }
+        
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            
+            currentX = e.touches[0].clientX;
+            currentY = e.touches[0].clientY;
+            
+            // Prevent vertical scrolling during horizontal swipe
+            const deltaX = Math.abs(currentX - startX);
+            const deltaY = Math.abs(currentY - startY);
+            
+            if (deltaX > deltaY) {
+                e.preventDefault();
+            }
+        }
+        
+        function handleTouchEnd(e) {
+            if (!isDragging) return;
+            
+            const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
+            const deltaTime = Date.now() - startTime;
+            const velocity = Math.abs(deltaX) / deltaTime;
+            
+            // Determine if it's a horizontal swipe
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                if (deltaX > 0 && (Math.abs(deltaX) > 100 || velocity > 0.3)) {
+                    // Swipe right - previous slide
+                    prevSlide();
+                } else if (deltaX < 0 && (Math.abs(deltaX) > 100 || velocity > 0.3)) {
+                    // Swipe left - next slide
+                    nextSlide();
+                }
+            }
+            
+            isDragging = false;
+        }
+        
+        // Keyboard navigation
+        function handleKeyDown(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    prevSlide();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    nextSlide();
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    goToSlide(0);
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    goToSlide(totalSlides - 1);
+                    break;
+            }
+        }
+        
+        // Progress dot click handlers
+        progressDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+            });
+        });
+        
+        // Touch event listeners
+        galleryContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+        galleryContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+        galleryContainer.addEventListener('touchend', handleTouchEnd);
+        
+        // Keyboard event listener
+        document.addEventListener('keydown', handleKeyDown);
+        
+        // Filter functionality
+        function toggleFilter() {
+            const filterOverlay = document.getElementById('filterOverlay');
+            filterOverlay.classList.toggle('hidden');
+        }
+        
+        // Filter tag handlers
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                // Remove active class from all tags
+                document.querySelectorAll('.filter-tag').forEach(t => {
+                    t.classList.remove('bg-accent', 'text-white');
+                    t.classList.add('bg-gray-100', 'text-text-secondary');
+                });
+                
+                // Add active class to clicked tag
+                this.classList.remove('bg-gray-100', 'text-text-secondary');
+                this.classList.add('bg-accent', 'text-white');
+                
+                // Filter logic would go here
+                const filter = this.dataset.filter;
+                console.log('Filtering by:', filter);
+            });
+        });
+        
+        // Back navigation
+        function goBack() {
+            window.location.href = 'portfolio_home_screen.html';
+        }
+        
+        // Resize handler
+        window.addEventListener('resize', () => {
+            updateSlidePosition();
+        });
+        
+        // Scroll handler for parallax effect
+        galleryContainer.addEventListener('scroll', () => {
+            const scrollLeft = galleryContainer.scrollLeft;
+            const slideWidth = galleryContainer.clientWidth;
+            const newSlide = Math.round(scrollLeft / slideWidth);
+            
+            if (newSlide !== currentSlide) {
+                currentSlide = newSlide;
+                updateProgressIndicators();
+                updateProjectCounter();
+            }
+            
+            // Parallax effect for background images
+            document.querySelectorAll('.parallax-bg').forEach((bg, index) => {
+                const offset = (scrollLeft - (index * slideWidth)) * 0.5;
+                bg.style.transform = `translateX(${offset}px)`;
+            });
+        });
+        
+        // Animate elements on slide change
+        function animateSlideContent() {
+            const activeSlide = document.querySelector('.project-slide.active');
+            if (activeSlide) {
+                const animatedElements = activeSlide.querySelectorAll('.animate-fade-up');
+                animatedElements.forEach((el, index) => {
+                    el.style.opacity = '0';
+                    setTimeout(() => {
+                        el.style.opacity = '1';
+                    }, index * 100);
+                });
+            }
+        }
+        
+        // Performance optimization: Intersection Observer for lazy loading
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src || img.src;
+                        img.classList.remove('skeleton');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+        
+        // Initialize gallery on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initGallery();
+            animateSlideContent();
+        });
+        
+        // Handle visibility change for performance
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Pause any animations or timers
+            } else {
+                // Resume animations or timers
+                updateSlidePosition();
+            }
+        });
+        
+        // Add loading states for images
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('load', function() {
+                this.style.opacity = '1';
+            });
+            
+            img.addEventListener('error', function() {
+                this.style.opacity = '0.7';
+            });
+        });
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>

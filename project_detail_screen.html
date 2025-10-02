@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mobile Banking App - Project Details</title>
+    <link rel="stylesheet" href="css/main.css" />
+        <link rel="icon" type="image/x-icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdlpPNwMG2kh5F7OXmcpHyRUqcZSdBQj41Lg&s">
+
+    <style>
+        /* Custom animations for mobile app feel */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .animate-slide-up {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+        
+        .animate-fade-scale {
+            animation: fadeInScale 0.8s ease-out forwards;
+        }
+        
+        .animate-slide-left {
+            animation: slideInLeft 0.5s ease-out forwards;
+        }
+        
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        
+        /* Smooth scroll behavior */
+        .scroll-container {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Touch feedback */
+        .touch-scale {
+            transition: transform 0.15s ease-out;
+        }
+        
+        .touch-scale:active {
+            transform: scale(0.98);
+        }
+        
+        /* Gradient overlay */
+        .gradient-overlay {
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(26, 26, 26, 0.05) 100%);
+        }
+        
+        /* Image carousel */
+        .carousel-container {
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .carousel-item {
+            scroll-snap-align: start;
+        }
+        
+        /* Expandable sections */
+        .expandable-section {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .expandable-section.collapsed .expandable-content {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        
+        .expandable-section.expanded .expandable-content {
+            max-height: 500px;
+            opacity: 1;
+        }
+        
+        /* Floating action button */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 40;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .fab:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Sticky header backdrop */
+        .sticky-header {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* Progressive disclosure */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease-out;
+        }
+        
+        .fade-in-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fmobilepor2696back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Hero Image Section -->
+    <section class="relative h-80 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Mobile Banking App Interface" class="w-full h-full object-cover" loading="eager" onerror="this.src='https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'; this.onerror=null;" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+        
+        <!-- Back Button -->
+        <button onclick="history.back()" class="absolute top-6 left-6 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center touch-scale safe-top">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        
+        <!-- Share Button -->
+        <button class="absolute top-6 right-6 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center touch-scale safe-top">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+            </svg>
+        </button>
+    </section>
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-30 bg-surface/90 sticky-header border-b border-gray-200 safe-top">
+        <div class="px-6 py-4">
+            <h1 class="text-fluid-xl font-bold text-text-primary">Mobile Banking App</h1>
+            <p class="text-text-secondary text-sm">UI/UX Design & Prototype</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pb-24">
+        <!-- Project Overview -->
+        <section class="px-6 py-8 fade-in-section">
+            <div class="space-y-6">
+                <div>
+                    <h2 class="text-fluid-lg font-semibold text-text-primary mb-4">Project Overview</h2>
+                    <p class="text-text-secondary text-fluid-base leading-relaxed">
+                        A comprehensive mobile banking application designed to provide users with a seamless and secure financial experience. 
+                        The app features intuitive navigation, modern UI components, and advanced security measures to ensure user trust and engagement. 
+                        Built with a mobile-first approach, it delivers exceptional performance across all devices while maintaining accessibility standards.
+                    </p>
+                </div>
+                
+                <!-- Project Stats -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="text-center p-4 bg-surface rounded-mobile elevation-1">
+                        <div class="text-fluid-lg font-bold text-accent">6</div>
+                        <div class="text-xs text-text-secondary">Months</div>
+                    </div>
+                    <div class="text-center p-4 bg-surface rounded-mobile elevation-1">
+                        <div class="text-fluid-lg font-bold text-accent">4</div>
+                        <div class="text-xs text-text-secondary">Team Members</div>
+                    </div>
+                    <div class="text-center p-4 bg-surface rounded-mobile elevation-1">
+                        <div class="text-fluid-lg font-bold text-accent">15+</div>
+                        <div class="text-xs text-text-secondary">Features</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Carousel -->
+        <section class="py-8 fade-in-section">
+            <div class="px-6 mb-6">
+                <h3 class="text-fluid-lg font-semibold text-text-primary">Project Gallery</h3>
+            </div>
+            <div class="carousel-container overflow-x-auto pb-4">
+                <div class="flex space-x-4 px-6">
+                    <div class="carousel-item flex-shrink-0 w-64 h-48 rounded-mobile overflow-hidden elevation-1">
+                        <img src="https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Banking App Dashboard" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;" />
+                    </div>
+                    <div class="carousel-item flex-shrink-0 w-64 h-48 rounded-mobile overflow-hidden elevation-1">
+                        <img src="https://images.pixabay.com/photo/2016/11/30/20/58/programming-1873854_1280.png" alt="Transaction Flow" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'; this.onerror=null;" />
+                    </div>
+                    <div class="carousel-item flex-shrink-0 w-64 h-48 rounded-mobile overflow-hidden elevation-1">
+                        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Security Features" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://images.pixabay.com/photo/2016/11/19/14/00/code-1839406_1280.jpg'; this.onerror=null;" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Challenge & Solution -->
+        <section class="px-6 py-8 fade-in-section">
+            <div class="space-y-8">
+                <!-- Challenge -->
+                <div class="expandable-section expanded" id="challengeSection">
+                    <button onclick="toggleSection('challengeSection')" class="w-full flex items-center justify-between p-4 bg-surface rounded-mobile elevation-1 touch-scale">
+                        <h3 class="text-fluid-lg font-semibold text-text-primary">Challenge</h3>
+                        <svg class="w-5 h-5 text-text-secondary transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div class="expandable-content mt-4 px-4">
+                        <p class="text-text-secondary text-fluid-base leading-relaxed">
+                            Traditional banking apps often suffer from complex navigation, poor user experience, and security concerns. 
+                            Users frequently abandon transactions due to confusing interfaces and lengthy processes. The challenge was to create 
+                            an intuitive, secure, and efficient mobile banking solution that would increase user engagement and transaction completion rates.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Solution -->
+                <div class="expandable-section expanded" id="solutionSection">
+                    <button onclick="toggleSection('solutionSection')" class="w-full flex items-center justify-between p-4 bg-surface rounded-mobile elevation-1 touch-scale">
+                        <h3 class="text-fluid-lg font-semibold text-text-primary">Solution</h3>
+                        <svg class="w-5 h-5 text-text-secondary transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div class="expandable-content mt-4 px-4">
+                        <p class="text-text-secondary text-fluid-base leading-relaxed">
+                            We developed a clean, minimalist interface with gesture-based navigation and biometric authentication. 
+                            The app features a card-based design system, progressive disclosure of information, and smart transaction flows 
+                            that reduce steps by 60%. Advanced security measures are seamlessly integrated without compromising user experience.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technology Stack -->
+        <section class="px-6 py-8 fade-in-section">
+            <h3 class="text-fluid-lg font-semibold text-text-primary mb-6">Technology Stack</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div class="flex items-center space-x-3 p-4 bg-surface rounded-mobile elevation-1">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <span class="text-accent font-bold text-sm">R</span>
+                    </div>
+                    <span class="text-text-primary font-medium">React Native</span>
+                </div>
+                <div class="flex items-center space-x-3 p-4 bg-surface rounded-mobile elevation-1">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <span class="text-success font-bold text-sm">N</span>
+                    </div>
+                    <span class="text-text-primary font-medium">Node.js</span>
+                </div>
+                <div class="flex items-center space-x-3 p-4 bg-surface rounded-mobile elevation-1">
+                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <span class="text-warning font-bold text-sm">F</span>
+                    </div>
+                    <span class="text-text-primary font-medium">Firebase</span>
+                </div>
+                <div class="flex items-center space-x-3 p-4 bg-surface rounded-mobile elevation-1">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <span class="text-purple-600 font-bold text-sm">T</span>
+                    </div>
+                    <span class="text-text-primary font-medium">TypeScript</span>
+                </div>
+                <div class="flex items-center space-x-3 p-4 bg-surface rounded-mobile elevation-1">
+                    <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                        <span class="text-error font-bold text-sm">R</span>
+                    </div>
+                    <span class="text-text-primary font-medium">Redux</span>
+                </div>
+                <div class="flex items-center space-x-3 p-4 bg-surface rounded-mobile elevation-1">
+                    <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <span class="text-text-primary font-bold text-sm">J</span>
+                    </div>
+                    <span class="text-text-primary font-medium">Jest</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Features -->
+        <section class="px-6 py-8 fade-in-section">
+            <h3 class="text-fluid-lg font-semibold text-text-primary mb-6">Key Features</h3>
+            <div class="space-y-4">
+                <div class="flex items-start space-x-4 p-4 bg-surface rounded-mobile elevation-1">
+                    <div class="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-text-primary mb-1">Biometric Authentication</h4>
+                        <p class="text-text-secondary text-sm">Secure login with fingerprint and face recognition technology</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4 p-4 bg-surface rounded-mobile elevation-1">
+                    <div class="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-text-primary mb-1">Smart Notifications</h4>
+                        <p class="text-text-secondary text-sm">Intelligent alerts for transactions, bills, and account activities</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4 p-4 bg-surface rounded-mobile elevation-1">
+                    <div class="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-text-primary mb-1">Quick Transfer</h4>
+                        <p class="text-text-secondary text-sm">One-tap money transfers with contact integration</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4 p-4 bg-surface rounded-mobile elevation-1">
+                    <div class="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-text-primary mb-1">Expense Analytics</h4>
+                        <p class="text-text-secondary text-sm">Visual spending insights and budget management tools</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results & Outcomes -->
+        <section class="px-6 py-8 fade-in-section">
+            <h3 class="text-fluid-lg font-semibold text-text-primary mb-6">Results & Impact</h3>
+            <div class="bg-surface rounded-mobile elevation-1 p-6 space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="text-center">
+                        <div class="text-fluid-2xl font-bold text-accent mb-2">85%</div>
+                        <div class="text-text-secondary text-sm">User Satisfaction</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-fluid-2xl font-bold text-success mb-2">60%</div>
+                        <div class="text-text-secondary text-sm">Faster Transactions</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="text-center">
+                        <div class="text-fluid-2xl font-bold text-warning mb-2">40%</div>
+                        <div class="text-text-secondary text-sm">Reduced Support Calls</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-fluid-2xl font-bold text-accent mb-2">95%</div>
+                        <div class="text-text-secondary text-sm">Security Score</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project Links -->
+        <section class="px-6 py-8 fade-in-section">
+            <div class="space-y-4">
+                <a href="javascript:void(0)" class="block w-full p-4 bg-accent text-white rounded-mobile text-center font-medium touch-scale">
+                    View Live Demo
+                </a>
+                <a href="javascript:void(0)" class="block w-full p-4 bg-surface border border-gray-200 rounded-mobile text-center font-medium text-text-primary touch-scale">
+                    View Source Code
+                </a>
+            </div>
+        </section>
+
+        <!-- Project Navigation -->
+        <section class="px-6 py-8 fade-in-section">
+            <div class="flex justify-between items-center">
+                <a href="project_gallery_screen.html" class="flex items-center space-x-2 text-text-secondary hover:text-accent transition-colors touch-scale">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    <span>Previous Project</span>
+                </a>
+                <a href="project_gallery_screen.html" class="flex items-center space-x-2 text-text-secondary hover:text-accent transition-colors touch-scale">
+                    <span>Next Project</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Action Button -->
+    <button class="fab w-14 h-14 bg-accent text-white rounded-full elevation-3 flex items-center justify-center touch-scale" onclick="window.location.href='contact_screen.html'">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-surface border-t border-gray-200 safe-bottom z-20">
+        <div class="flex justify-around py-2">
+            <a href="portfolio_home_screen.html" class="flex flex-col items-center py-2 px-4 text-text-secondary hover:text-accent transition-colors touch-scale">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <span class="text-xs">Home</span>
+            </a>
+            <a href="project_gallery_screen.html" class="flex flex-col items-center py-2 px-4 text-text-secondary hover:text-accent transition-colors touch-scale">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0l-4-4m4 4l-4 4"/>
+                </svg>
+                <span class="text-xs">Projects</span>
+            </a>
+            <a href="project_detail_screen.html" class="flex flex-col items-center py-2 px-4 text-accent transition-colors touch-scale">
+                <svg class="w-6 h-6 mb-1" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-xs">Details</span>
+            </a>
+            <a href="contact_screen.html" class="flex flex-col items-center py-2 px-4 text-text-secondary hover:text-accent transition-colors touch-scale">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <span class="text-xs">Contact</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // Toggle expandable sections
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const icon = section.querySelector('svg');
+            
+            if (section.classList.contains('expanded')) {
+                section.classList.remove('expanded');
+                section.classList.add('collapsed');
+                icon.style.transform = 'rotate(-90deg)';
+            } else {
+                section.classList.remove('collapsed');
+                section.classList.add('expanded');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all fade-in sections
+        document.querySelectorAll('.fade-in-section').forEach(section => {
+            observer.observe(section);
+        });
+        
+        // Touch gesture support for carousel
+        let startX = 0;
+        let scrollLeft = 0;
+        const carousel = document.querySelector('.carousel-container');
+        
+        if (carousel) {
+            carousel.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].pageX - carousel.offsetLeft;
+                scrollLeft = carousel.scrollLeft;
+            });
+            
+            carousel.addEventListener('touchmove', (e) => {
+                if (!startX) return;
+                e.preventDefault();
+                const x = e.touches[0].pageX - carousel.offsetLeft;
+                const walk = (x - startX) * 2;
+                carousel.scrollLeft = scrollLeft - walk;
+            });
+            
+            carousel.addEventListener('touchend', () => {
+                startX = 0;
+            });
+        }
+        
+        // Smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // FAB scroll behavior
+        let lastScrollTop = 0;
+        const fab = document.querySelector('.fab');
+        
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                // Scrolling down
+                fab.style.transform = 'translateY(100px)';
+            } else {
+                // Scrolling up
+                fab.style.transform = 'translateY(0)';
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+        
+        // Image loading optimization
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('load', function() {
+                this.style.opacity = '1';
+            });
+            
+            img.addEventListener('error', function() {
+                this.style.opacity = '0.7';
+            });
+        });
+        
+        // Performance optimization: Lazy load images
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src || img.src;
+                        img.classList.remove('skeleton');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+        
+        // Add touch feedback to interactive elements
+        document.querySelectorAll('.touch-scale').forEach(element => {
+            element.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            element.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>

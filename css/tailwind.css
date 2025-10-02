@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Primary Colors */
+  --color-primary: #1a1a1a; /* gray-900 */
+  --color-secondary: #4a4a4a; /* gray-600 */
+  --color-accent: #007AFF; /* blue-500 */
+  
+  /* Background Colors */
+  --color-background: #fafafa; /* gray-50 */
+  --color-surface: #ffffff; /* white */
+  
+  /* Text Colors */
+  --color-text-primary: #1a1a1a; /* gray-900 */
+  --color-text-secondary: #6a6a6a; /* gray-500 */
+  
+  /* Status Colors */
+  --color-success: #34C759; /* green-500 */
+  --color-warning: #FF9500; /* orange-500 */
+  --color-error: #FF3B30; /* red-500 */
+  
+  /* Shadow Variables */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  
+  /* Border Variables */
+  --border-light: 1px solid rgba(0, 0, 0, 0.1);
+  
+  /* Animation Variables */
+  --transition-default: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@layer base {
+*  {
+    
+  }
+  
+  body {
+    @apply bg-background text-text-primary font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Touch interaction improvements */
+  button, [role="button"], input[type="submit"], input[type="button"] {
+    @apply touch-manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Smooth scrolling for mobile */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Gesture-based navigation components */
+  .swipe-container {
+    @apply overflow-hidden touch-pan-x;
+    scroll-snap-type: x mandatory;
+  }
+  
+  .swipe-item {
+    scroll-snap-align: start;
+    @apply flex-shrink-0;
+  }
+  
+  /* Micro-interaction components */
+  .touch-feedback {
+    @apply transition-transform duration-150 ease-out;
+    transform-origin: center;
+  }
+  
+  .touch-feedback:active {
+    transform: scale(0.98);
+  }
+  
+  /* Progressive disclosure components */
+  .expandable-content {
+    @apply transition-all duration-300 ease-in-out overflow-hidden;
+  }
+  
+  .expandable-content.collapsed {
+    @apply h-0 opacity-0;
+  }
+  
+  .expandable-content.expanded {
+    @apply opacity-100;
+  }
+  
+  /* Floating action elements */
+  .floating-element {
+    @apply shadow-md backdrop-blur-sm;
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* Loading states */
+  .skeleton {
+    @apply bg-gray-200 animate-pulse rounded;
+    animation: skeleton-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  /* Elevation system */
+  .elevation-1 {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .elevation-2 {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .elevation-3 {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* Card components */
+  .card {
+    @apply bg-surface rounded-lg p-6 elevation-1 transition-all duration-200;
+  }
+  
+  .card:hover {
+    @apply elevation-2;
+  }
+  
+  /* Button components */
+  .btn-primary {
+    @apply bg-accent text-white px-6 py-3 rounded-lg font-medium touch-feedback;
+    @apply transition-all duration-200 hover:bg-blue-600 focus:ring-2 focus:ring-accent focus:ring-opacity-50;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-white px-6 py-3 rounded-lg font-medium touch-feedback;
+    @apply transition-all duration-200 hover:bg-gray-700 focus:ring-2 focus:ring-secondary focus:ring-opacity-50;
+  }
+  
+  /* Input components */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg bg-surface border border-gray-200;
+    @apply focus:border-accent focus:ring-2 focus:ring-accent focus:ring-opacity-20;
+    @apply transition-all duration-200 outline-none;
+  }
+}
+
+@layer utilities {
+  /* Typography utilities */
+  .text-fluid-sm {
+    font-size: clamp(0.875rem, 2vw, 1rem);
+  }
+  
+  .text-fluid-base {
+    font-size: clamp(1rem, 2.5vw, 1.125rem);
+  }
+  
+  .text-fluid-lg {
+    font-size: clamp(1.125rem, 3vw, 1.25rem);
+  }
+  
+  .text-fluid-xl {
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+  }
+  
+  .text-fluid-2xl {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  }
+  
+  .text-fluid-3xl {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+  
+  /* Touch-friendly spacing */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* Safe area utilities for mobile */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+}
